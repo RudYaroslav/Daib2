@@ -1,0 +1,71 @@
+# This is a basic workflow to help you get started with Actions
+
+name: DaiB
+import docx
+import glob
+
+folder = r"/Users/macbookpro/Desktop/SAS/Project/Prikazi" #указываем путь к папке с файлами
+
+files = glob.glob(folder+'/*.docx') #обращаемся к файлам
+
+doc = docx.Document(files[0]) #считываем файл номер 1 
+
+a = [paragraphs.text for paragraphs in doc.paragraphs] #проходимся по параграфам 
+
+b = list(filter(bool, a)) #создаем список из абзацев и удаляем лишние пробелы
+
+bdef function1(file):
+ line1 = 'Об установлении полномочий, обязанностей и ответственности' 
+ for i in file:
+ if line1 in i:
+ target1 = i.split('ответственности')[-1]
+ 
+ line2 = 'исполнение следующих обязанностей'
+ for i in file:
+ if line2 in i:
+ target2 = i.split('ответственности')[-1] 
+ name = " ".join([morph.parse(word)[0].normal_form for word in nltk.word_tokenize(target1) if word.istitle()]).title()
+ post = " ".join([morph.parse(word)[0].normal_form for word in nltk.word_tokenize(target1) if not word.istitle()]).title()
+ 
+ line2 = 'исполнение следующих обязанностей'
+ line_stop2 = 'Предоставить первому проректору'
+ for i in b:
+ if line2 in i:
+ full_line2 = i
+ i_start_2 = b.index(full_line2) #индекс строки начала (которая не входит в список)
+ for i in b:
+ if line_stop2 in i:
+ full_line_stop2 = i
+ i_stop_2 = b.index(full_line_stop2) #индекс строки конца (которая не входит в список)
+ coordination = (b[i_start_2+1:i_stop_2])
+ 
+ line3 = 'полномочия работодателя в отношении:'
+ line_stop3 = 'право подписи:'
+ for i in b:
+ if line3 in i:
+ full_line3 = i
+ i_start_3 = b.index(full_line3) #индекс строки начала (которая не входит в список)
+ for i in b:
+ if line_stop3 in i:
+ full_line_stop3 = i
+ i_stop_3 = b.index(full_line_stop3) #индекс строки конца (которая не входит в список)
+ powers = (b[i_start_3:i_stop_3])
+ 
+ return post, name, coordination, powers
+function1(b)
+import xlwings as xw
+
+wb = xw.Book('poln4omochiya.xlsx')
+sht = wb.sheets['Полномочия работодателя']
+sht.range('A188').value = function1(b)
+
+Message
+
+
+
+%@ messages selected
+
+Search
+
+
+
